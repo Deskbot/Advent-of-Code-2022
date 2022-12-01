@@ -1,6 +1,7 @@
 import System.IO
 import Data.Functor
 import Data.List.Split
+import Data.Sort
 import Debug.Trace
 
 main = do
@@ -27,13 +28,4 @@ part2 file = sum bestElves
         elfTotCalories = makeElvesFromInput file <&> sum
 
 maxn :: [Int] -> Int -> [Int]
-maxn [] _ = []
-maxn arr count = if length arr <= count
-    then traceShowId arr
-    else if head arr > foldl1 min maxnOfRemaining
-        then (head arr):(maxn remaining (count-1))
-        else maxnOfRemaining
-
-    where
-        remaining = tail arr
-        maxnOfRemaining = maxn remaining count
+maxn arr count = take count $ reverse $ sort arr
