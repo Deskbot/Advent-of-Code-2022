@@ -39,7 +39,11 @@ batches n [] = []
 batches n arr = (take 3 arr):(batches n (drop 3 arr))
 
 commonItemBetweenElves :: [Bag] -> Char
-commonItemBetweenElves bags = head $ foldl1 intersect (fmap join bags)
+commonItemBetweenElves bags = bags
+    <&> join
+    & foldl1 intersect
+    & head
+
     where
         join (arr1, arr2) = union arr1 arr2
 
