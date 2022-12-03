@@ -34,12 +34,23 @@ priority c = case elemIndex c priorities of
     where
         priorities = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 
+batches :: Int -> [t] -> [[t]]
+batches n [] = []
+batches n arr = (take 3 arr):(batches n (drop 3 arr))
+
+commonItemBetweenElves :: [Bag] -> Char
+commonItemBetweenElves bags = bags
+    <&> (\(arr1, arr2) -> union arr1 arr2)
+    & foldl1 intersect
+   !! 1
+
 part1 file = parseFile file
     <&> commonItem
     <&> priority
     & sum
 
 part2 file = parseFile file
-    <&> commonItem
+    & batches 3
+    <&> commonItemBetweenElves
     <&> priority
     & sum
