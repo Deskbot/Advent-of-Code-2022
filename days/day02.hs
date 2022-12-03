@@ -8,6 +8,7 @@ import Debug.Trace
 main = do
     file <- readFile "inputs/day02.txt"
     () <- putStrLn $ show $ test1
+    () <- putStrLn $ show $ test2
     () <- putStrLn $ show $ part1 file
     putStrLn $ show $ part2 file
 
@@ -18,7 +19,7 @@ data Result = Win | Draw | Loss
 parseFile :: String -> [Game]
 parseFile file = splitOn "\n" file
     <&> splitOn " "
-    <&> \([myMove, theirMove]) -> (parseMove theirMove, parseMove myMove) -- yes I'm reversing the order
+    <&> \([theirMove, myMove]) -> (parseMove myMove, parseMove theirMove) -- yes I'm reversing the order
     where
         parseMove "A" = Rock
         parseMove "B" = Paper
@@ -27,6 +28,24 @@ parseFile file = splitOn "\n" file
         parseMove "Y" = Paper
         parseMove "Z" = Scissors
         parseMove _ = error "no such move"
+
+parseFile2 :: String -> [Game]
+parseFile2 file = splitOn "\n" file
+    <&> splitOn " "
+    <&> \([theirMove, outcome]) -> (chooseMove (parseMove theirMove) outcome, parseMove theirMove) -- yes I'm reversing the order
+    where
+        parseMove "A" = Rock
+        parseMove "B" = Paper
+        parseMove "C" = Scissors
+        parseMove _ = error "no such move"
+
+        chooseMove m        "Y" = m
+        chooseMove Paper    "X" = Rock
+        chooseMove Paper    "Z" = Scissors
+        chooseMove Rock     "X" = Scissors
+        chooseMove Rock     "Z" = Paper
+        chooseMove Scissors "X" = Paper
+        chooseMove Scissors "Z" = Rock
 
 score :: Game -> Int
 score game = resultValue (result game) + shapeValue myMove
@@ -54,11 +73,20 @@ part1 file = parseFile file
     <&> score
     & sum
 
-part2 file = ""
+part2 file = parseFile2 file
+    <&> score
+    & sum
 
 test1 = "expected: " ++ show expected ++ " actual: " ++ show (part1 file)
     where
         expected = 15
+        file = "A Y\n\
+               \B X\n\
+               \C Z"
+
+test2 = "expected: " ++ show expected ++ " actual: " ++ show (part2 file)
+    where
+        expected = 12
         file = "A Y\n\
                \B X\n\
                \C Z"
