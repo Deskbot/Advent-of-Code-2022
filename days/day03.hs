@@ -36,7 +36,7 @@ priority c = case elemIndex c priorities of
 
 batches :: Int -> [t] -> [[t]]
 batches n [] = []
-batches n arr = (take 3 arr):(batches n (drop 3 arr))
+batches n arr = (take n arr):(batches n (drop n arr))
 
 commonItemBetweenElves :: [Bag] -> Char
 commonItemBetweenElves bags = bags
