@@ -31,8 +31,20 @@ hasSubRange :: (Range,Range) -> Bool
 hasSubRange ((start1, end1), (start2, end2)) = (start1 >= start2 && end1 <= end2)
     || (start1 <= start2 && end1 >= end2)
 
+hasOverlap :: (Range,Range) -> Bool
+hasOverlap (range1, range2) = isBetween start1 range2
+    || isBetween end1   range2
+    || isBetween start2 range1
+    || isBetween end2   range1
+    where
+        (start1, end1) = range1
+        (start2, end2) = range2
+        isBetween n (start, end) = n >= start && n <= end
+
 part1 file = parseFile file
     & filter hasSubRange
     & length
 
-part2 file = ""
+part2 file = parseFile file
+    & filter hasOverlap
+    & length
