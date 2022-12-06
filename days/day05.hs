@@ -22,7 +22,8 @@ data Move = Move {
     to :: Int
 } deriving (Show)
 
-colIndexes = [1 .. 9]
+colNums = [1 .. 9]
+colIndexes = [0 .. 8]
 
 parseFile :: String -> ([Stack], [Move])
 parseFile file = (parseStacks (parts !! 0), parseMoves (parts !! 1))
@@ -30,9 +31,9 @@ parseFile file = (parseStacks (parts !! 0), parseMoves (parts !! 1))
         parts = splitOn "\n\n" file
 
 parseStacks :: String -> [Stack]
-parseStacks str = colIndexes
+parseStacks str = colNums
     <&> (\i -> i * 4 + 1)
-    <&> (\i -> fmap (\line -> line !! i) lines)
+    <&> (\i -> fmap (\line -> (traceShowId  line) !! i) lines)
     <&> filter isLetter
     where
         lines = splitOn "\n" str
@@ -46,22 +47,22 @@ parseMoves str = splitOn "\n" str
     where
         regex = "move (\\d+) from (\\d+) to (\\d+)"
         toMove arr = Move {
-            amount = arrI !! 0,
+            amount = (traceShowId arrI) !! 0,
             from = arrI !! 1,
             to = arrI !! 2
         } where
             arrI = fmap read arr
 
 applyMove :: Move -> [Stack] -> [Stack]
-applyMove Move {amount = amount, from = from, to = to} stacks = [ pick i stacks | i <- colIndexes]
+applyMove Move {amount = amount, from = from, to = to} stacks = [pick i stacks | i <- colNums]
     where
         pick i stacks
           | i == from = newFrom
           | i == to = newTo
-          | otherwise = stacks !! i
+          | otherwise = stacks !! (i - 1)
 
-        newTo = (take amount (stacks !! from)) ++ (stacks !! to)
-        newFrom = drop amount (stacks !! from)
+        newTo = (take amount (stacks !! (from - 1))) ++ (stacks !! (to - 1))
+        newFrom = drop amount (stacks !! (from - 1))
 
 part1 file = foldl (flip applyMove) stacks moves
     <&> head
