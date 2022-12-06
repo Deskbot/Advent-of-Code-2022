@@ -23,7 +23,6 @@ data Move = Move {
 } deriving (Show)
 
 colNums = [1 .. 9]
-colIndexes = [0 .. 8]
 
 parseFile :: String -> ([Stack], [Move])
 parseFile file = (parseStacks (parts !! 0), parseMoves (parts !! 1))
@@ -33,6 +32,7 @@ parseFile file = (parseStacks (parts !! 0), parseMoves (parts !! 1))
 parseStacks :: String -> [Stack]
 parseStacks str = colNums
     <&> (\i -> i * 4 + 1)
+    <&> traceShowId
     <&> (\i -> fmap (\line -> (traceShowId  line) !! i) lines)
     <&> filter isLetter
     where
@@ -41,25 +41,28 @@ parseStacks str = colNums
 
 parseMoves :: String -> [Move]
 parseMoves str = splitOn "\n" str
-    <&> (\line -> getAllTextMatches (regex =~ line))
+    <&> (\line -> getAllTextMatches (line =~ regex))
     <&> fmap read
     <&> toMove
     where
-        regex = "move (\\d+) from (\\d+) to (\\d+)"
+        regex = "move ([0-9]+) from ([0-9]+) to ([0-9]+)"
         toMove arr = Move {
-            amount = (traceShowId arrI) !! 0,
+            amount = arrI !! 0,
             from = arrI !! 1,
             to = arrI !! 2
         } where
             arrI = fmap read arr
 
 applyMove :: Move -> [Stack] -> [Stack]
-applyMove Move {amount = amount, from = from, to = to} stacks = [pick i stacks | i <- colNums]
+applyMove Move {amount = amount, from = from, to = to} stacks = map pick colNums
     where
-        pick i stacks
-          | i == from = newFrom
-          | i == to = newTo
-          | otherwise = stacks !! (i - 1)
+        pick :: Int -> Stack
+        pick num
+            | i == from = newFrom
+            | i == to = newTo
+            | otherwise = stacks !! (i - 1)
+            where
+                i = num - 1
 
         newTo = (take amount (stacks !! (from - 1))) ++ (stacks !! (to - 1))
         newFrom = drop amount (stacks !! (from - 1))
