@@ -50,6 +50,14 @@ parseMoves str = splitOn "\n" str
         } where
             arrI = fmap read arr
 
-part1 file = parseFile file
+applyMove :: Move -> [Stack] -> [Stack]
+applyMove move stacks = []
+
+someKindOfFold :: (a -> b -> b) -> b -> [a] -> b
+someKindOfFold f start [] = start
+someKindOfFold f start (elem : arr) = f (head arr) (someKindOfFold f start (tail arr))
+
+part1 file = someKindOfFold applyMove stacks moves where
+    (stacks, moves) = parseFile file
 
 part2 file = ""
