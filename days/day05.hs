@@ -31,9 +31,9 @@ parseFile file = (parseStacks (parts !! 0), parseMoves (parts !! 1))
 
 parseStacks :: String -> [Stack]
 parseStacks str = colNums
-    <&> (\i -> i * 4 + 1)
     <&> traceShowId
-    <&> (\i -> fmap (\line -> (traceShowId  line) !! i) lines)
+    <&> (\i -> (i - 1) * 4 + 1)
+    <&> (\i -> fmap (!! i) lines)
     <&> filter isLetter
     where
         lines = splitOn "\n" str
@@ -42,13 +42,14 @@ parseStacks str = colNums
 parseMoves :: String -> [Move]
 parseMoves str = splitOn "\n" str
     <&> (\line -> getAllTextMatches (line =~ regex))
+    <&> traceShowId
     <&> fmap (\n -> read n :: Int)
     <&> toMove
     where
         regex = "move ([0-9]+) from ([0-9]+) to ([0-9]+)"
         toMove :: [Int] -> Move
         toMove arr = Move {
-            amount = arr !! 0,
+            amount = (traceShowId arr) !! 0,
             from = arr !! 1,
             to = arr !! 2
         }
