@@ -42,16 +42,16 @@ parseStacks str = colNums
 parseMoves :: String -> [Move]
 parseMoves str = splitOn "\n" str
     <&> (\line -> getAllTextMatches (line =~ regex))
-    <&> fmap read
+    <&> fmap (\n -> read n :: Int)
     <&> toMove
     where
         regex = "move ([0-9]+) from ([0-9]+) to ([0-9]+)"
+        toMove :: [Int] -> Move
         toMove arr = Move {
-            amount = arrI !! 0,
-            from = arrI !! 1,
-            to = arrI !! 2
-        } where
-            arrI = fmap read arr
+            amount = arr !! 0,
+            from = arr !! 1,
+            to = arr !! 2
+        }
 
 applyMove :: Move -> [Stack] -> [Stack]
 applyMove Move {amount = amount, from = from, to = to} stacks = map pick colNums
