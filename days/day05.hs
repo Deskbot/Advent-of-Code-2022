@@ -22,13 +22,15 @@ data Move = Move {
     to :: Int
 } deriving (Show)
 
+colIndexes = [1 .. 9]
+
 parseFile :: String -> ([Stack], [Move])
 parseFile file = (parseStacks (parts !! 0), parseMoves (parts !! 1))
     where
         parts = splitOn "\n\n" file
 
 parseStacks :: String -> [Stack]
-parseStacks str = [1 .. 9]
+parseStacks str = colIndexes
     <&> (\i -> i * 4 + 1)
     <&> (\i -> fmap (\line -> line !! i) lines)
     <&> filter isLetter
@@ -51,9 +53,19 @@ parseMoves str = splitOn "\n" str
             arrI = fmap read arr
 
 applyMove :: Move -> [Stack] -> [Stack]
-applyMove move stacks = []
+applyMove Move {amount = amount, from = from, to = to} stacks = [ pick i stacks | i <- colIndexes]
+    where
+        pick i stacks
+          | i == from = newFrom
+          | i == to = newTo
+          | otherwise = stacks !! i
 
-part1 file = foldl (flip applyMove) stacks moves where
-    (stacks, moves) = parseFile file
+        newTo = (take amount (stacks !! from)) ++ (stacks !! to)
+        newFrom = drop amount (stacks !! from)
+
+part1 file = foldl (flip applyMove) stacks moves
+    <&> head
+    where
+        (stacks, moves) = parseFile file
 
 part2 file = ""
