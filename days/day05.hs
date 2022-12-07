@@ -27,19 +27,18 @@ colNums = [1 .. 9]
 parseFile :: String -> ([Stack], [Move])
 parseFile file = (stacks, moves)
     where
-        stacks = parseStacks (parts !! 0)
+        stacks = traceShowId $ parseStacks (parts !! 0)
         moves = parseMoves (parts !! 1)
         parts = splitOn "\n\n" file
 
 parseStacks :: String -> [Stack]
 parseStacks str = colNums
-    <&> traceShowId
     <&> (\i -> (i - 1) * 4 + 1)
     <&> (\i -> fmap (!! i) lines)
     <&> filter isLetter
     where
         lines = splitOn "\n" str
-        isLetter c = elem c str
+        isLetter c = elem c ['A'..'Z']
 
 parseMoves :: String -> [Move]
 parseMoves str = splitOn "\n" str
@@ -57,7 +56,7 @@ parseMoves str = splitOn "\n" str
 
         toMove :: [Int] -> Move
         toMove arr = Move {
-            amount = (traceShowId arr) !! 0,
+            amount = arr !! 0,
             from = arr !! 1,
             to = arr !! 2
         }
