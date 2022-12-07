@@ -15,18 +15,18 @@ main = do
   () <- print (part2 file)
   return ()
 
-part1 file = map (\i -> take 4 $ drop i file) [0 ..]
-    & filterIndexed (not.hasMatch)
-    & (+) 4
+poop n file = map (\i -> take n $ drop i file) [0 ..]
+    & filterIndexed (not . hasMatch)
+    & (+) n
+  where
+    hasMatch :: Eq a => [a] -> Bool
+    hasMatch arr = any (\elem -> count elem arr > 1) arr
 
-    where
-        hasMatch :: Eq a => [a] -> Bool
-        hasMatch arr = any (\elem -> count elem arr > 1) arr
-
-        count :: Eq a => a -> [a] -> Int
-        count elem arr = foldl (\tot e -> tot + if e == elem then 1 else 0) 0 arr
+    count :: Eq a => a -> [a] -> Int
+    count elem arr = foldl (\tot e -> tot + if e == elem then 1 else 0) 0 arr
 
 filterIndexed :: (a -> Bool) -> [a] -> Int
 filterIndexed f arr = head [ i | (elem, i) <- zip arr [0..], f elem]
 
-part2 file = ""
+part1 = poop 4
+part2 = poop 14
