@@ -41,12 +41,17 @@ parseStacks str = colNums
 
 parseMoves :: String -> [Move]
 parseMoves str = splitOn "\n" str
-    <&> (\line -> getAllTextMatches (line =~ regex))
-    <&> traceShowId
+    <&> extractNums
     <&> fmap (\n -> read n :: Int)
     <&> toMove
     where
-        regex = "move ([0-9]+) from ([0-9]+) to ([0-9]+)"
+        extractNums :: String -> [String]
+        extractNums str = splitOn "move " str
+            <&> splitOn " from "
+            & flat
+            <&> splitOn " to "
+            & flat
+
         toMove :: [Int] -> Move
         toMove arr = Move {
             amount = (traceShowId arr) !! 0,
@@ -59,14 +64,14 @@ applyMove Move {amount = amount, from = from, to = to} stacks = map pick colNums
     where
         pick :: Int -> Stack
         pick num
-            | i == from = newFrom
-            | i == to = newTo
-            | otherwise = stacks !! (i - 1)
-            where
-                i = num - 1
+            | num == from = newFrom
+            | num == to = newTo
+            | otherwise = stacks !! (num - 1)
 
         newTo = (take amount (stacks !! (from - 1))) ++ (stacks !! (to - 1))
         newFrom = drop amount (stacks !! (from - 1))
+
+flat = foldl1 (++)
 
 part1 file = foldl (flip applyMove) stacks moves
     <&> head
