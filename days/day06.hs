@@ -16,8 +16,8 @@ main = do
   return ()
 
 part1 file = map (\i -> take 4 $ drop i file) [0 ..]
-    & filter (not.hasMatch)
-    & head
+    & filterIndexed (not.hasMatch)
+    & (+) 4
 
     where
         hasMatch :: Eq a => [a] -> Bool
@@ -26,6 +26,7 @@ part1 file = map (\i -> take 4 $ drop i file) [0 ..]
         count :: Eq a => a -> [a] -> Int
         count elem arr = foldl (\tot e -> tot + if e == elem then 1 else 0) 0 arr
 
-
+filterIndexed :: (a -> Bool) -> [a] -> Int
+filterIndexed f arr = head [ i | (elem, i) <- zip arr [0..], f elem]
 
 part2 file = ""
