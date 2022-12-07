@@ -15,10 +15,8 @@ main = do
   () <- print (part2 file)
   return ()
 
-part1 file = map (\i -> drop i $ take 4 file) [0 ..]
-    & traceShowId
-    -- & filter (\arr -> length arr == 4)
-    -- & filter (not.hasMatch)
+part1 file = map (\i -> take 4 $ drop i file) [0 ..]
+    & filter (not.hasMatch)
     & head
 
     where
