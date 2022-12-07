@@ -25,8 +25,10 @@ data Move = Move {
 colNums = [1 .. 9]
 
 parseFile :: String -> ([Stack], [Move])
-parseFile file = (parseStacks (parts !! 0), parseMoves (parts !! 1))
+parseFile file = (stacks, moves)
     where
+        stacks = parseStacks (parts !! 0)
+        moves = parseMoves (parts !! 1)
         parts = splitOn "\n\n" file
 
 parseStacks :: String -> [Stack]
@@ -51,6 +53,7 @@ parseMoves str = splitOn "\n" str
             & flat
             <&> splitOn " to "
             & flat
+            & filter (/= "")
 
         toMove :: [Int] -> Move
         toMove arr = Move {
