@@ -27,7 +27,7 @@ colNums = [1 .. 9]
 parseFile :: String -> ([Stack], [Move])
 parseFile file = (stacks, moves)
     where
-        stacks = traceShowId $ parseStacks (parts !! 0)
+        stacks = parseStacks (parts !! 0)
         moves = parseMoves (parts !! 1)
         parts = splitOn "\n\n" file
 
@@ -62,7 +62,7 @@ parseMoves str = splitOn "\n" str
         }
 
 applyMove :: Move -> [Stack] -> [Stack]
-applyMove Move {amount = amount, from = from, to = to} stacks = map pick colNums
+applyMove Move {amount = amount, from = from, to = to} stacks = traceShowId $ map pick colNums
     where
         pick :: Int -> Stack
         pick num
@@ -76,7 +76,7 @@ applyMove Move {amount = amount, from = from, to = to} stacks = map pick colNums
 flat = foldl1 (++)
 
 part1 file = foldl (flip applyMove) stacks moves
-    <&> head
+    <&> (\arr -> arr !! (length arr - 1))
     where
         (stacks, moves) = parseFile file
 
