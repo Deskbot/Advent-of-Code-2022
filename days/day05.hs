@@ -62,7 +62,7 @@ parseMoves str = splitOn "\n" str
         }
 
 applyMove :: Move -> [Stack] -> [Stack]
-applyMove Move {amount = amount, from = from, to = to} stacks = map pick colNums
+applyMove Move {amount = amount, from = from, to = to} stacks = traceShowId $ map pick colNums
     where
         pick :: Int -> Stack
         pick num
@@ -70,7 +70,7 @@ applyMove Move {amount = amount, from = from, to = to} stacks = map pick colNums
             | num == to = newTo
             | otherwise = stacks !! (num - 1)
 
-        newTo = (take amount (stacks !! (from - 1))) ++ (stacks !! (to - 1))
+        newTo = (reverse $ take amount (stacks !! (from - 1))) ++ (stacks !! (to - 1))
         newFrom = drop amount (stacks !! (from - 1))
 
 flat = foldl1 (++)
