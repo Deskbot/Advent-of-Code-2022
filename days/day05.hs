@@ -61,8 +61,8 @@ parseMoves str = splitOn "\n" str
             to = arr !! 2
         }
 
-applyMove :: Move -> [Stack] -> [Stack]
-applyMove Move {amount = amount, from = from, to = to} stacks = traceShowId $ map pick colNums
+applyMove :: Bool -> Move -> [Stack] -> [Stack]
+applyMove rev Move {amount = amount, from = from, to = to} stacks = map pick colNums
     where
         pick :: Int -> Stack
         pick num
@@ -70,14 +70,22 @@ applyMove Move {amount = amount, from = from, to = to} stacks = traceShowId $ ma
             | num == to = newTo
             | otherwise = stacks !! (num - 1)
 
-        newTo = (reverse $ take amount (stacks !! (from - 1))) ++ (stacks !! (to - 1))
+        pickedUp = if rev
+            then reverse crates
+            else crates
+            where
+                crates = take amount (stacks !! (from - 1))
+        newTo = pickedUp ++ (stacks !! (to - 1))
         newFrom = drop amount (stacks !! (from - 1))
 
 flat = foldl1 (++)
 
-part1 file = foldl (flip applyMove) stacks moves
+part1 file = foldl (flip (applyMove True)) stacks moves
     <&> head
     where
         (stacks, moves) = parseFile file
 
-part2 file = ""
+part2 file = foldl (flip (applyMove False)) stacks moves
+    <&> head
+  where
+    (stacks, moves) = parseFile file
