@@ -19,7 +19,11 @@ main = do
   () <- print (part2 file)
   return ()
 
-data Line = Cd String | Ls | File (Int, String) | Folder (String) deriving (Show)
+data Line = Cd String | Ls | Entry (String, Int) | Dir String deriving (Show)
+
+type File = (String, Int)
+type Folder = (String, [FileSystem])
+data FileSystem = Folder Folder | File File
 
 parseFile :: String -> [Line]
 parseFile file = splitOn "\n" file
@@ -45,14 +49,49 @@ parseLine str = case result of
             size <- int
             _ <- string " "
             name <- literallyAnything
-            return $ File (size, name)
+            return $ Entry (name, size)
         parseFolder = do
             _ <- string "dir "
             name <- literallyAnything
-            return $ Folder name
+            return $ Dir name
 
         literallyAnything = many $ satisfy (const True)
 
+buildFileSystem :: [Line] -> FileSystem
+buildFileSystem = ""
+
+getFolders :: FileSystem -> [FileSystem]
+getFolders (File _) = []
+getFolders (Folder children) = map getFolders (snd children)
+    & foldl1 (++)
+
+folderSize :: Folder -> Int
+folderSize (name, children) = filter isFile children
+    & map toFile
+    & map getFileSize
+    & sum
+
+isFile fs = case fs of
+    Folder _ -> False
+    File _ -> True
+
+toFile fs = case fs of
+    File f -> f
+    Folder _ -> error "expected a file"
+
+getFileSize :: File -> Int
+getFileSize = snd
+
+getSize :: FileSystem -> Int
+getSize (File (_, size)) = size
+getSize (Folder (name, children)) = map getSize children
+    & sum
+
 part1 file = parseFile file
+    & buildFileSystem
+    & getFolders
+    & map getSize
+    & filter (<= 100000)
+    & sum
 
 part2 file = ""
