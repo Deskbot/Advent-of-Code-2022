@@ -23,7 +23,7 @@ data Line = Cd String | Ls | Entry (String, Int) | Dir String deriving (Show)
 
 type File = (String, Int)
 type Folder = (String, [FileSystem])
-data FileSystem = Folder Folder | File File
+data FileSystem = Folder Folder | File File deriving (Show)
 
 parseFile :: String -> [Line]
 parseFile file = splitOn "\n" file
@@ -96,6 +96,7 @@ getSize (Folder (name, children)) = map getSize children
 
 part1 file = parseFile file
     & buildFileSystem
+    & traceShowId
     & getFolders
     & map getSize
     & filter (<= 100000)
