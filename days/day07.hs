@@ -58,7 +58,14 @@ parseLine str = case result of
         literallyAnything = many $ satisfy (const True)
 
 buildFileSystem :: [Line] -> FileSystem
-buildFileSystem = ""
+buildFileSystem lines = Folder $ foldl applyLine ("", []) lines
+    where
+        applyLine (folderName, children) line = case line of
+            Cd nav    -> (nav, [])
+            Ls        -> (folderName, children)
+            Entry f   -> (folderName, (File f):children)
+            Dir name  -> (folderName, (Folder (name, [])):children)
+
 
 getFolders :: FileSystem -> [FileSystem]
 getFolders (File _) = []
