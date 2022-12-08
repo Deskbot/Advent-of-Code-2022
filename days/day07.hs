@@ -24,6 +24,7 @@ data Line = Cd String | Ls | Entry (String, Int) | Dir String deriving (Show)
 type File = (String, Int)
 type Folder = (String, [FileSystem])
 data FileSystem = Folder Folder | File File deriving (Show)
+type Cwd = [String]
 
 parseFile :: String -> [Line]
 parseFile file = splitOn "\n" file
@@ -58,13 +59,19 @@ parseLine str = case result of
         literallyAnything = many $ satisfy (const True)
 
 buildFileSystem :: [Line] -> FileSystem
-buildFileSystem lines = Folder $ foldl applyLine ("", []) lines
+buildFileSystem lines = Folder $ snd $ foldl applyLine ([], ("", [])) lines
     where
-        applyLine (folderName, children) line = case line of
-            Cd nav    -> (nav, [])
-            Ls        -> (folderName, children)
-            Entry f   -> (folderName, (File f):children)
-            Dir name  -> (folderName, (Folder (name, [])):children)
+        applyLine :: (Cwd, Folder) -> Line -> (Cwd, Folder)
+        applyLine (cwd, folder) line = case line of
+            Cd to    -> (newCwd, (to, []))
+                where
+                    newCwd | to == ".." = tail cwd
+                           | otherwise  = to : cwd
+            Ls        -> (cwd, (folderName, children))
+            Entry f   -> (cwd, (folderName, (File f):children))
+            Dir name  -> (cwd, (folderName, (Folder (name, [])):children))
+            where
+                (folderName, children) = folder
 
 
 getFolders :: FileSystem -> [FileSystem]
