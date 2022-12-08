@@ -63,9 +63,9 @@ buildFileSystem lines = Folder $ snd $ foldl applyLine ([], ("", [])) lines
     where
         applyLine :: (Cwd, Folder) -> Line -> (Cwd, Folder)
         applyLine (cwd, folder) line = case line of
-            Cd ".."   -> (tail cwd, (to, []))
-            Cd to     -> ( to : cwd, (to, []))
-            Ls        -> (cwd, (folderName, children))
+            Cd ".."   -> (tail cwd, folder)
+            Cd to     -> (to : cwd, (to, []))
+            Ls        -> (cwd, folder)
             Entry f   -> (cwd, (folderName, (File f):children))
             Dir name  -> (cwd, (folderName, (Folder (name, [])):children))
             where
