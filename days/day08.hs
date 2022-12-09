@@ -44,19 +44,20 @@ treesInAllDirections :: Grid -> [[Tree]]
 treesInAllDirections grid = (allRows) ++ (reverse allRows) ++ (allCols) ++ (reverse allCols)
     where
         (rows, cols, plane) = grid
+
         getRow row = map (\col -> (getTreeHeight row col, (row, col))) [1 .. cols]
-        getCol col = map (\row -> (getTreeHeight col col, (row, col))) [1 .. rows]
+        getCol col = map (\row -> (getTreeHeight row col, (row, col))) [1 .. rows]
+
         allRows = map getRow [1 .. rows]
         allCols = map getCol [1 .. cols]
+
         getTreeHeight row col = read ((plane !! (row-1) !! (col-1)) : "") :: Int
 
 part1 file = parseFile file
     & treesInAllDirections
     <&> getVisible
     & foldl1 (++)
-    & nub
+    & nub -- unique
     & length
-
-
 
 part2 file = ""
