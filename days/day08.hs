@@ -36,10 +36,10 @@ getCol y (Grid (_, _, plane)) = filter (\(_, (_, y')) -> y == y') plane
 
 getDirections x y grid = (up,down,left,right)
     where
-        up = reverse $ take x $ getCol y grid
-        down = drop (x+1) $ getCol y grid
-        left = reverse $ take y $ getRow x grid
-        right = drop (y+1) $ getRow y grid
+        up =    reverse $ take x     $ getCol y grid
+        down =            drop (x+1) $ getCol y grid
+        left =  reverse $ take y     $ getRow x grid
+        right =           drop (y+1) $ getRow x grid
 
 gridMap :: ((a, Point)->b) -> Grid a -> Grid b
 gridMap f grid = Grid (rowLen, colLen, map mapCell plane)
