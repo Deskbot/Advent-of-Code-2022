@@ -21,11 +21,19 @@ type Forest = (Int, Int, [[Char]])
 type Tree = (Int, Point)
 type Point = (Int, Int)
 
-newtype Grid a = Grid (Int, Int, [[(a, Point)]])
+newtype Grid a = Grid (Int, Int, [(a, Point)])
 
-getCell x y (_, _, plane) = plane !! x !! y
-getRow x (_, _, plane) = plane !! x
-getCol y (_, _, plane) = map (!! y) plane
+getCell :: Int -> Int -> Grid a -> (a, Point)
+getCell x y (Grid (_, _, plane)) = filter (\(_,p) -> p == (x,y)) plane !! 0
+
+getRow :: Int -> Grid a -> [(a, Point)]
+getRow x (Grid (_, _, plane)) = filter (\(_, (x',_)) -> x==x') plane
+    & sortBy (\(_, (x1,_)) (_,(x2,_)) -> compare x1 x2)
+
+getCol :: Int -> Grid a -> [(a, Point)]
+getCol y (Grid (_, _, plane)) = filter (\(_, (_, y')) -> y == y') plane
+    & sortBy (\(_, (_,y1)) (_,(_,y2)) -> compare y1 y2)
+
 getDirections x y grid = (up,down,left,right)
     where
         up = reverse $ take x $ getCol y grid
@@ -34,10 +42,9 @@ getDirections x y grid = (up,down,left,right)
         right = drop (y+1) $ getRow y grid
 
 gridMap :: ((a, Point)->b) -> Grid a -> Grid b
-gridMap f grid = Grid (rowLen, colLen, map mapRow plane)
+gridMap f grid = Grid (rowLen, colLen, map mapCell plane)
     where
         Grid (rowLen, colLen, plane) = grid
-        mapRow row = map mapCell row
         mapCell (val, p) = (f (val, p), p)
 
 parseFile :: String -> Forest
@@ -46,6 +53,16 @@ parseFile file = (rows, cols, lines)
         lines = splitOn "\n" file
         cols = length (head lines)
         rows = length lines
+
+parseFile2 :: String -> Grid Int
+parseFile2 file = Grid (rows, cols, trees)
+  where
+    lines = splitOn "\n" file
+    sizes = lines <&> map (\c -> read (c:"") :: Int)
+    trees = combinations [0..rows] [0..cols]
+        <&> (\(x,y) -> (sizes !! x !! y, (x,y)))
+    cols = length (head lines)
+    rows = length lines
 
 getVisible :: [Tree] -> [Tree]
 getVisible [] = []
@@ -73,21 +90,6 @@ treesInAllDirections grid = (allRows) ++ (fmap reverse allRows) ++ (allCols) ++ 
         allCols = map getCol [1 .. cols]
 
         getTreeHeight row col = read ((plane !! (row-1) !! (col-1)) : "") :: Int
-
-treePlane :: Forest -> [[[Tree]]]
-treePlane grid = map directions coords
-    where
-        (rows, cols, plane) = grid
-        coords = combinations [1 .. rows] [1 .. cols]
-
-        directions (row, col) = (reverse left) : (right) : (reverse up) : down : []
-            where
-                (left, right) = splitAt col (getRow row)
-                (up, down) = splitAt row (getCol col)
-
-        getRow row = map (\col -> (getTreeHeight row col, (row, col))) [1 .. cols]
-        getCol col = map (\row -> (getTreeHeight row col, (row, col))) [1 .. rows]
-        getTreeHeight row col = read ((plane !! (row -1) !! (col -1)) : "") :: Int
 
 combinations :: [a] -> [b] -> [(a,b)]
 combinations arr1 arr2 = concatMap (\elem1 -> map (\elem2 -> (elem1, elem2)) arr2) arr1
