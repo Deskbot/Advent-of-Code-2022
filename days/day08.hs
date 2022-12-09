@@ -104,13 +104,11 @@ part1 file = parseFile file
     & length
 
 part2 file = parseFile2 file
-    & (\grid -> gridMap (\(height, (x,y)) -> getDirections x y grid) grid)
+    & (\grid -> gridMap (\(height, (x,y)) -> getDirections (traceShowId x) (traceShowId y) grid) grid)
+    & gridMap (\((up,down,left,right), _) -> (getVisible up, getVisible down, getVisible left, getVisible right))
     & gridMap (\((up,down,left,right), _) -> length up * length down * length left * length right)
     & toArr
     & biggest
-    -- &
-    -- <&> length
-    -- & biggest
 
 testInput = "30373\n\
             \25512\n\
