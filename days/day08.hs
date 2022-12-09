@@ -38,7 +38,7 @@ getVisible arr = foldl keep [] arr
             where
                 tallestVisibleSoFar = map fst visibles
 
-biggest = foldl max 0
+biggest = foldl max (-1)
 
 treesInAllDirections :: Grid -> [[Tree]]
 treesInAllDirections grid = (allRows) ++ (reverse allRows) ++ (allCols) ++ (reverse allCols)
@@ -56,6 +56,7 @@ treesInAllDirections grid = (allRows) ++ (reverse allRows) ++ (allCols) ++ (reve
 part1 file = parseFile file
     & treesInAllDirections
     <&> getVisible
+    & traceShowId
     & foldl1 (++)
     & nub -- unique
     & length
