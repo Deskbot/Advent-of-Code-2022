@@ -40,6 +40,7 @@ getVisible arr = foldl keep [] arr
 
 biggest = foldl max 0
 
+treesInAllDirections :: Grid -> [[Tree]]
 treesInAllDirections grid = (allRows) ++ (reverse allRows) ++ (allCols) ++ (reverse allCols)
     where
         (rows, cols, plane) = grid
@@ -52,7 +53,9 @@ treesInAllDirections grid = (allRows) ++ (reverse allRows) ++ (allCols) ++ (reve
 part1 file = parseFile file
     & treesInAllDirections
     <&> getVisible
-
+    & foldl1 (++)
+    & nub
+    & length
 
 
 
