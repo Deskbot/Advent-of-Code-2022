@@ -21,6 +21,25 @@ type Forest = (Int, Int, [[Char]])
 type Tree = (Int, Point)
 type Point = (Int, Int)
 
+newtype Grid a = Grid (Int, Int, [[(a, Point)]])
+
+getCell x y (_, _, plane) = plane !! x !! y
+getRow x (_, _, plane) = plane !! x
+getCol y (_, _, plane) = map (!! y) plane
+getDirections x y grid = (up,down,left,right)
+    where
+        up = reverse $ take x $ getCol y grid
+        down = drop (x+1) $ getCol y grid
+        left = reverse $ take y $ getRow x grid
+        right = drop (y+1) $ getRow y grid
+
+gridMap :: ((a, Point)->b) -> Grid a -> Grid b
+gridMap f grid = Grid (rowLen, colLen, map mapRow plane)
+    where
+        Grid (rowLen, colLen, plane) = grid
+        mapRow row = map mapCell row
+        mapCell (val, p) = (f (val, p), p)
+
 parseFile :: String -> Forest
 parseFile file = (rows, cols, lines)
     where
