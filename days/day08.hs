@@ -11,10 +11,10 @@ import Text.Regex.PCRE
 
 main = do
   file <- readFile "inputs/day08.txt"
-  () <- print (part1 testInput)
-  () <- print (part2 testInput)
---   () <- print (part1 file)
---   () <- print (part2 file)
+--   () <- print (part1 testInput)
+--   () <- print (part2 testInput)
+  () <- print (part1 file)
+  () <- print (part2 file)
   return ()
 
 type Forest = (Int, Int, [[Char]])
@@ -78,6 +78,18 @@ getVisible arr = foldl keep [] arr
             where
                 tallestVisibleSoFar = map fst visibles
 
+getDownwards :: Int -> [Tree] -> [Tree]
+getDownwards myHeight [] = []
+getDownwards myHeight arr = foldl keep [] arr
+  where
+    keep :: [Tree] -> Tree -> [Tree]
+    keep visibles elem
+        | tallestVisibleSoFar < myHeight = elem : visibles
+        | otherwise = visibles
+        where
+            (height, _) = elem
+            tallestVisibleSoFar = biggest $ map fst visibles
+
 biggest = foldl max (-1)
 
 treesInAllDirections :: Forest -> [[Tree]]
@@ -104,11 +116,12 @@ part1 file = parseFile file
     & length
 
 part2 file = parseFile2 file
-    & (\grid -> gridMap (\(height, (x,y)) -> getDirections (traceShowId x) (traceShowId y) grid) grid)
-    & gridMap (\((up,down,left,right), _) -> (getVisible up, getVisible down, getVisible left, getVisible right))
+    & (\grid -> gridMap (\(height, (x,y)) -> (height, getDirections x y grid)) grid)
+    & gridMap (\((height, (up,down,left,right)), _) -> (getDownwards height up, getDownwards height down, getDownwards height left, getDownwards height right))
     & gridMap (\((up,down,left,right), _) -> length up * length down * length left * length right)
     & toArr
     & biggest
+
 
 testInput = "30373\n\
             \25512\n\
