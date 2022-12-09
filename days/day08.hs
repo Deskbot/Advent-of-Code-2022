@@ -47,6 +47,8 @@ gridMap f grid = Grid (rowLen, colLen, map mapCell plane)
         Grid (rowLen, colLen, plane) = grid
         mapCell (val, p) = (f (val, p), p)
 
+toArr (Grid (_,_,plane)) = map fst plane
+
 parseFile :: String -> Forest
 parseFile file = (rows, cols, lines)
     where
@@ -101,8 +103,11 @@ part1 file = parseFile file
     & nub -- unique
     & length
 
-part2 file = parseFile file
-    & treePlane
+part2 file = parseFile2 file
+    & (\grid -> gridMap (\(height, (x,y)) -> getDirections x y grid) grid)
+    & gridMap (\((up,down,left,right), _) -> length up * length down * length left * length right)
+    & toArr
+    & biggest
     -- &
     -- <&> length
     -- & biggest
