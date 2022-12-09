@@ -12,15 +12,16 @@ import Text.Regex.PCRE
 main = do
   file <- readFile "inputs/day08.txt"
   () <- print (part1 testInput)
-  () <- print (part1 file)
-  () <- print (part2 file)
+  () <- print (part2 testInput)
+--   () <- print (part1 file)
+--   () <- print (part2 file)
   return ()
 
-type Grid = (Int, Int, [[Char]])
+type Forest = (Int, Int, [[Char]])
 type Tree = (Int, Point)
 type Point = (Int, Int)
 
-parseFile :: String -> Grid
+parseFile :: String -> Forest
 parseFile file = (rows, cols, lines)
     where
         lines = splitOn "\n" file
@@ -41,7 +42,7 @@ getVisible arr = foldl keep [] arr
 
 biggest = foldl max (-1)
 
-treesInAllDirections :: Grid -> [[Tree]]
+treesInAllDirections :: Forest -> [[Tree]]
 treesInAllDirections grid = (allRows) ++ (fmap reverse allRows) ++ (allCols) ++ (fmap reverse allCols)
     where
         (rows, cols, plane) = grid
@@ -54,6 +55,24 @@ treesInAllDirections grid = (allRows) ++ (fmap reverse allRows) ++ (allCols) ++ 
 
         getTreeHeight row col = read ((plane !! (row-1) !! (col-1)) : "") :: Int
 
+treePlane :: Forest -> [[[Tree]]]
+treePlane grid = map directions coords
+    where
+        (rows, cols, plane) = grid
+        coords = combinations [1 .. rows] [1 .. cols]
+
+        directions (row, col) = (reverse left) : (right) : (reverse up) : down : []
+            where
+                (left, right) = splitAt col (getRow row)
+                (up, down) = splitAt row (getCol col)
+
+        getRow row = map (\col -> (getTreeHeight row col, (row, col))) [1 .. cols]
+        getCol col = map (\row -> (getTreeHeight row col, (row, col))) [1 .. rows]
+        getTreeHeight row col = read ((plane !! (row -1) !! (col -1)) : "") :: Int
+
+combinations :: [a] -> [b] -> [(a,b)]
+combinations arr1 arr2 = concatMap (\elem1 -> map (\elem2 -> (elem1, elem2)) arr2) arr1
+
 part1 file = parseFile file
     & treesInAllDirections
     <&> getVisible
@@ -61,7 +80,11 @@ part1 file = parseFile file
     & nub -- unique
     & length
 
-part2 file = ""
+part2 file = parseFile file
+    & treePlane
+    -- &
+    -- <&> length
+    -- & biggest
 
 testInput = "30373\n\
             \25512\n\
