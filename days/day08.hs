@@ -11,6 +11,7 @@ import Text.Regex.PCRE
 
 main = do
   file <- readFile "inputs/day08.txt"
+  () <- print (part1 testInput)
   () <- print (part1 file)
   () <- print (part2 file)
   return ()
@@ -41,7 +42,7 @@ getVisible arr = foldl keep [] arr
 biggest = foldl max (-1)
 
 treesInAllDirections :: Grid -> [[Tree]]
-treesInAllDirections grid = (allRows) ++ (reverse allRows) ++ (allCols) ++ (reverse allCols)
+treesInAllDirections grid = (allRows) ++ (fmap reverse allRows) ++ (allCols) ++ (fmap reverse allCols)
     where
         (rows, cols, plane) = grid
 
@@ -56,9 +57,14 @@ treesInAllDirections grid = (allRows) ++ (reverse allRows) ++ (allCols) ++ (reve
 part1 file = parseFile file
     & treesInAllDirections
     <&> getVisible
-    & traceShowId
     & foldl1 (++)
     & nub -- unique
     & length
 
 part2 file = ""
+
+testInput = "30373\n\
+            \25512\n\
+            \65332\n\
+            \33549\n\
+            \35390"
