@@ -61,7 +61,7 @@ parseFile2 file = Grid (rows, cols, trees)
   where
     lines = splitOn "\n" file
     sizes = lines <&> map (\c -> read (c:"") :: Int)
-    trees = combinations [0..rows] [0..cols]
+    trees = combinations [0..rows-1] [0..cols-1]
         <&> (\(x,y) -> (sizes !! x !! y, (x,y)))
     cols = length (head lines)
     rows = length lines
