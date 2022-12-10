@@ -69,7 +69,7 @@ generatePcStateAtEachTime :: Int -> [(Int, Pc)] -> [(Int, Pc)]
 generatePcStateAtEachTime until history = map (\t -> (t, atTime history t)) [1 .. 240]
 
 spriteMap :: (Int, Pc) -> [Char]
-spriteMap (time, x) = map f [1..40]
+spriteMap (time, x) = map f [0..39] -- cols go from 0 to 39, but cycles are 1 to 40
   where
     f i = if abs (x - i) <= 1
       then '#'
