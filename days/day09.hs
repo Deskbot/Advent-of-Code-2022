@@ -90,13 +90,17 @@ doStep rope direction = newRope
                 (hx, hy) = h
 
         newTail :: Rope
-        newTail = snd $ foldl next (h, []) t
+        newTail = foldl next (h, newHead, []) t
+            & \(_,_,result) -> result
             where
-                next :: (Point, Rope) -> Point -> (Point, Rope)
-                next (prev, result) next = (next, result ++ [updateTail prev next])
+                next :: (Point, Point, Rope) -> Point -> (Point, Point, Rope)
+                next (followingBefore, followingNow, result) next = (next, newKnot, result ++ [newKnot])
+                    where
+                        newKnot = updateTail followingBefore followingNow next
 
-        updateTail prev next = if tooFar prev next
-            then prev
+
+        updateTail prevBefore prevNow next = if tooFar prevNow next
+            then prevBefore
             else next
             where
                 tooFar (x1,y1) (x2,y2) = abs (x1-x2) > 1 || abs (y1-y2) > 1
