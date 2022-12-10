@@ -15,8 +15,7 @@ main = do
   () <- print (part2 file)
   return ()
 
-part1 file =
-  parseFile file
+part1 file = parseFile file
     & toSteps
     & computeTailHistory ((1, 1), (1, 1))
     & nub
@@ -27,7 +26,7 @@ part2 file = ""
 data Direction = U | D | L | R
 type Move = (Direction, Int)
 type Point = (Int, Int)
-type Rope = (Point, Point)
+type RopeEdge = (Point, Point)
 getHead = fst
 getTail = snd
 
@@ -59,16 +58,16 @@ toSteps moves = foldl1 (++) $ map f moves
     where
         f (dir, dis) = replicate dis dir
 
-computeTailHistory :: Rope -> [Direction] -> [Point]
+computeTailHistory :: RopeEdge -> [Direction] -> [Point]
 computeTailHistory initialRope steps = snd $ foldl next (initialRope, []) steps
     where
-    next :: (Rope, [Point]) -> Direction -> (Rope, [Point])
+    next :: (RopeEdge, [Point]) -> Direction -> (RopeEdge, [Point])
     next (rope, history) direction = (newRope, newHistory)
         where
         newRope = doStep rope direction
         newHistory = getTail newRope : history
 
-doStep :: Rope -> Direction -> Rope
+doStep :: RopeEdge -> Direction -> RopeEdge
 doStep (head, tail) direction = (newHead, newTail)
     where
         (headX, headY) = head
