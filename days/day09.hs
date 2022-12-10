@@ -77,21 +77,20 @@ doStep rope direction = newRope
     where
         newRope = newHead : newTail
 
-        -- very cool
-        head = rope !! 0
-        tail = drop 1 rope
+        h = head rope
+        t = tail rope
 
         newHead = case direction of
-            U -> (headX, headY + 1)
-            D -> (headX, headY - 1)
-            L -> (headX - 1, headY)
-            R -> (headX + 1, headY)
+            U -> (hx, hy + 1)
+            D -> (hx, hy - 1)
+            L -> (hx - 1, hy)
+            R -> (hx + 1, hy)
 
             where
-                (headX, headY) = head
+                (hx, hy) = h
 
         newTail :: Rope
-        newTail = snd $ foldl next (head, []) tail
+        newTail = snd $ foldl next (h, []) t
             where
                 next :: (Point, Rope) -> Point -> (Point, Rope)
                 next (prev, result) next = (next, result ++ [updateTail prev next])
