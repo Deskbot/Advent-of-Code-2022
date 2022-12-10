@@ -17,18 +17,21 @@ main = do
 
 part1 file = parseFile file
     & toSteps
-    & computeTailHistory ((1, 1), (1, 1))
+    & computeTailHistory 2
     & nub
     & length
 
-part2 file = ""
+part2 file = parseFile file
+    & toSteps
+    & computeTailHistory 10
+    & nub
+    & length
 
 data Direction = U | D | L | R
 type Move = (Direction, Int)
+
+type Rope = [Point]
 type Point = (Int, Int)
-type RopeEdge = (Point, Point)
-getHead = fst
-getTail = snd
 
 parseFile :: String -> [Move]
 parseFile file = splitOn "\n" file <&> parseLine
@@ -58,20 +61,25 @@ toSteps moves = foldl1 (++) $ map f moves
     where
         f (dir, dis) = replicate dis dir
 
-computeTailHistory :: RopeEdge -> [Direction] -> [Point]
-computeTailHistory initialRope steps = snd $ foldl next (initialRope, []) steps
+computeTailHistory :: Int -> [Direction] -> [Point]
+computeTailHistory knots steps = snd $ foldl next (initialRope, []) steps
     where
-    next :: (RopeEdge, [Point]) -> Direction -> (RopeEdge, [Point])
+    initialRope = replicate knots (1, 1)
+
+    next :: (Rope, [Point]) -> Direction -> (Rope, [Point])
     next (rope, history) direction = (newRope, newHistory)
         where
         newRope = doStep rope direction
-        newHistory = getTail newRope : history
+        newHistory = last newRope : history
 
-doStep :: RopeEdge -> Direction -> RopeEdge
-doStep (head, tail) direction = (newHead, newTail)
+doStep :: Rope -> Direction -> Rope
+doStep rope direction = newRope
     where
-        (headX, headY) = head
-        (tailX, tailY) = tail
+        newRope = newHead : newTail
+
+        -- very cool
+        head = rope !! 0
+        tail = drop 1 rope
 
         newHead = case direction of
             U -> (headX, headY + 1)
@@ -79,8 +87,17 @@ doStep (head, tail) direction = (newHead, newTail)
             L -> (headX - 1, headY)
             R -> (headX + 1, headY)
 
-        newTail = if tooFar newHead tail
-            then head
-            else tail
+            where
+                (headX, headY) = head
+
+        newTail :: Rope
+        newTail = snd $ foldl next (head, []) tail
+            where
+                next :: (Point, Rope) -> Point -> (Point, Rope)
+                next (prev, result) next = (next, result ++ [updateTail prev next])
+
+        updateTail prev next = if tooFar prev next
+            then prev
+            else next
             where
                 tooFar (x1,y1) (x2,y2) = abs (x1-x2) > 1 || abs (y1-y2) > 1
