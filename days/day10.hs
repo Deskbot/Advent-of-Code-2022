@@ -15,14 +15,14 @@ import Modules.MyUtil (fromRightButWorking, foldlKeepHistory)
 
 main = do
   file <- readFile "inputs/day10.txt"
-  () <- print (part1 test1)
+  -- () <- print (part1 test1)
   () <- print (part1 file)
   () <- print (part2 file)
   return ()
 
 part1 file = parseFile file
   & generatePcStateOverTime
-  & (\history -> map (\t -> t * atTime history t) [20, 60, 100, 140, 180, 220])
+  & (\history -> map (signalStrength history) [20, 60, 100, 140, 180, 220])
   & sum
 
 part2 file = ""
@@ -55,6 +55,8 @@ tick (time, pc) op = case op of
 
 atTime :: [(Int, Pc)] -> Int -> Pc
 atTime history t = snd $ last $ filter (\(time,_) -> time <= t) history
+
+signalStrength history time = time * atTime history time
 
 test1 = "noop\n\
         \addx 3\n\
