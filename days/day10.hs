@@ -11,7 +11,9 @@ import System.IO
 import Text.ParserCombinators.Parsec hiding (Line)
 import Text.ParserCombinators.Parsec.Number
 
-import Modules.MyUtil (fromRightButWorking, foldlKeepHistory)
+import Modules.MyUtil (fromRightButWorking, foldlKeepHistory, mapi, batches, joinBetween)
+import Data.Array.Base (mapIndices)
+import Control.Monad (join)
 
 main = do
   file <- readFile "inputs/day10.txt"
@@ -25,7 +27,10 @@ part1 file = parseFile file
   & (\history -> map (signalStrength history) [20, 60, 100, 140, 180, 220])
   & sum
 
-part2 file = ""
+part2 file = parseFile file
+  & (\ops -> generatePcStateAtEachTime (length ops) $ generatePcStateOverTime ops)
+  <&> spriteMap
+  & drawSpriteOverTime
 
 data Op = Noop | Addx Int
 type Pc = Int
@@ -57,6 +62,33 @@ atTime :: [(Int, Pc)] -> Int -> Pc
 atTime history t = snd $ last $ filter (\(time,_) -> time <= t) history
 
 signalStrength history time = time * atTime history time
+
+generatePcStateAtEachTime :: Int -> [(Int, Pc)] -> [(Int, Pc)]
+generatePcStateAtEachTime until history = map (\t -> (t, atTime history t)) [1 .. until]
+
+spriteMap :: (Int, Pc) -> [Char]
+spriteMap (time, x) = map f [1..40]
+  where
+    f i = if abs (x - i) <= 1
+      then '#'
+      else '.'
+
+drawSpriteOverTime :: [String] -> String
+drawSpriteOverTime spriteMapsOverTime = batches 40 (drop 20 spriteMapsOverTime)
+  <&> toString
+  <&> joinBetween '\n'
+  & concat
+
+  where
+    toString :: [[Char]] -> String
+    toString spriteMapsOverTime = []
+
+      where
+        res = foldl f "" arr
+        arr = zip [0 .. (length spriteMapsOverTime - 1)] spriteMapsOverTime
+
+        f :: String -> (Int, [Char]) -> String
+        f acc (t, sm) = mapi (\i sm -> sm !! i) (traceShowId spriteMapsOverTime)
 
 test1 = "noop\n\
         \addx 3\n\
