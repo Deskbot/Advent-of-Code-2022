@@ -1,4 +1,4 @@
-module MyUtil (fromRightButWorking, foldlKeepHistory) where
+module Modules.MyUtil (fromRightButWorking, foldlKeepHistory) where
 
 fromRightButWorking e = case e of
   Left err -> error $ show err

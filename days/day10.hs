@@ -11,7 +11,7 @@ import System.IO
 import Text.ParserCombinators.Parsec hiding (Line)
 import Text.ParserCombinators.Parsec.Number
 
-import MyUtil (fromRightButWorking, foldlKeepHistory)
+import Modules.MyUtil (fromRightButWorking, foldlKeepHistory)
 
 main = do
   file <- readFile "inputs/day10.txt"
