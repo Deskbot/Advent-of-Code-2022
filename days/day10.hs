@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use intercalate" #-}
 module Main where
 
 import Data.Either
@@ -11,7 +13,7 @@ import System.IO
 import Text.ParserCombinators.Parsec hiding (Line)
 import Text.ParserCombinators.Parsec.Number
 
-import Modules.MyUtil (fromRightButWorking, foldlKeepHistory, mapi, batches, joinBetween)
+import Modules.MyUtil (fromRightButWorking, foldlKeepHistory, mapi, batches, joinBetween, overwrite)
 import Data.Array.Base (mapIndices)
 import Control.Monad (join)
 
@@ -64,7 +66,7 @@ atTime history t = snd $ last $ filter (\(time,_) -> time <= t) history
 signalStrength history time = time * atTime history time
 
 generatePcStateAtEachTime :: Int -> [(Int, Pc)] -> [(Int, Pc)]
-generatePcStateAtEachTime until history = map (\t -> (t, atTime history t)) [1 .. until]
+generatePcStateAtEachTime until history = map (\t -> (t, atTime history t)) [1 .. 240]
 
 spriteMap :: (Int, Pc) -> [Char]
 spriteMap (time, x) = map f [1..40]
@@ -74,21 +76,21 @@ spriteMap (time, x) = map f [1..40]
       else '.'
 
 drawSpriteOverTime :: [String] -> String
-drawSpriteOverTime spriteMapsOverTime = batches 40 (drop 20 spriteMapsOverTime)
+drawSpriteOverTime spriteMapsOverTime = batches 40 spriteMapsOverTime
   <&> toString
-  <&> joinBetween '\n'
+  <&> traceShowId
+  & intersperse "\n"
   & concat
 
   where
     toString :: [[Char]] -> String
-    toString spriteMapsOverTime = []
+    toString spriteMapsOverTime = foldl f "" arrWithIndexes
 
       where
-        res = foldl f "" arr
-        arr = zip [0 .. (length spriteMapsOverTime - 1)] spriteMapsOverTime
+        arrWithIndexes = zip [0 .. (length spriteMapsOverTime - 1)] spriteMapsOverTime
 
         f :: String -> (Int, [Char]) -> String
-        f acc (t, sm) = mapi (\i sm -> sm !! i) (traceShowId spriteMapsOverTime)
+        f acc (t, sm) = overwrite (sm !! t) t acc
 
 test1 = "noop\n\
         \addx 3\n\
