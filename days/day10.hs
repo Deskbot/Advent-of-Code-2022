@@ -21,13 +21,8 @@ main = do
 
 part1 file = parseFile file
   & generatePcStateOverTime
-  & filter (timeIsAnyOf [20, 60, 100, 140, 180])
-  & map snd
+  & (\history -> map (atTime history) [20, 60, 100, 140, 180])
   & sum
-
-  where
-    timeIsAnyOf :: [Int] -> (Int, Pc) -> Bool
-    timeIsAnyOf times pcAtTime = fst pcAtTime `elem` times
 
 part2 file = ""
 
@@ -53,8 +48,9 @@ generatePcStateOverTime = foldlKeepHistory tick (initialTime, initialPc)
     initialTime = 1
 
 tick :: (Int, Pc) -> Op -> (Int, Pc)
-tick (time, pc) op = (time + 1, newPc)
-  where
-    newPc = case op of
-      Noop -> pc
-      Addx val -> pc + val
+tick (time, pc) op = case op of
+  Noop -> (time + 1, pc)
+  Addx val -> (time + 2, pc + val)
+
+atTime :: [(Int, Pc)] -> Int -> Pc
+atTime history t = snd $ last $ filter (\(time,_) -> time < t) history
