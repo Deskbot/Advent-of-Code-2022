@@ -25,3 +25,6 @@ joinBetween c (elem : []) = [elem]
 joinBetween c (el1 : el2 : arr) = el1 : c : el2 : c : joinBetween c arr
 
 overwrite char i str = (take (i -1) str) ++ [char] ++ (drop (i) str)
+
+combinations :: [a] -> [b] -> [(a,b)]
+combinations arr1 arr2 = concatMap (\elem1 -> map (\elem2 -> (elem1, elem2)) arr2) arr1
