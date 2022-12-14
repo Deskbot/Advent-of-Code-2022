@@ -1,46 +1,48 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Use <$>" #-}
 import Data.Function
 import Data.Functor
-import Data.List
 import Data.List.Split
-import Data.Sort
 import Debug.Trace
 import System.IO
-import Text.Regex.Base
-import Text.Regex.Base.RegexLike
-import Text.Regex.PCRE
 import Text.ParserCombinators.Parsec hiding (Line)
 import Text.ParserCombinators.Parsec.Number
-import Modules.Grid
+import Modules.MyUtil
 
 main = do
   file <- readFile "inputs/day13.txt"
   () <- print (part1 file)
-  () <- print (part2 file)
+  -- () <- print (part2 file)
   return ()
 
-data Packet = Seq [Packet] | Atom Int
+data Packet = Seq [Packet] | Atom Int deriving (Show)
 
-parseFile :: String -> Packet
-parseFile file = Grid (rows, cols, cells)
-  where
-    pairsOfStrings = splitOn "\n\n" file
-      <&> splitOn "\n"
+parseFile :: String -> [(Packet,Packet)]
+parseFile file = splitOn "\n" file
+  & filter (/= "")
+  <&> parsePacket
+  & batches 2
+  <&> (\batch -> (batch !! 0, batch !! 1))
 
 parsePacket :: String -> Packet
-parsePacket str = ""
+parsePacket str = case parse packetParser "poop" str of
+  Left err -> error $ show err
+  Right move -> move
+
   where
-    packetParser = number | seqParser
+    packetParser = atomParser <|> seqParser
+    atomParser = do
+      n <- int
+      return (Atom n)
     seqParser = do
       _ <- char '['
+      arr <- numsParser
+      _ <- char ']'
+      return (Seq arr)
+    numsParser = do
       n1 <- optionMaybe packetParser
       ns <- many (char ',' >> packetParser)
-      _ <- char ']'
-      return Seq [n1 : ns]
+      return (case n1 of
+        Just n -> n:ns
+        Nothing -> [])
 
-part1 file = ""
-  where
-    grid = parseFile file
-    startPos = find ((==) 'S') grid
-    endPos = find ((==) 'E') grid
+part1 file = parseFile file
+
