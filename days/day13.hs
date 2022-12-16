@@ -9,18 +9,16 @@ import Text.ParserCombinators.Parsec.Number
 
 main = do
   file <- readFile "inputs/day13.txt"
-  () <- print (part1 testFile)
-  -- () <- print (part1 file)
+  -- () <- print (part1 testFile)
+  () <- print (part1 file)
   -- () <- print (part2 file)
   return ()
 
 
 part1 file = parseFile file
-  <&> traceShowId
-  <&> rightOrder
-  <&> traceShowId
-  & filter (== Smaller)
-  & mapi (\i elem -> i + 1)
+  & mapi (\i pair -> (i + 1, rightOrder pair))
+  & filter (\(index, comparison) -> comparison == Smaller)
+  & map fst
   & sum
 
 
