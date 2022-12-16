@@ -31,7 +31,7 @@ executable x2022
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
     build-depends:
-        base ^>=4.16.4.0,
+        base ^>=4.17.0.0,
         parsec,
         split,
         parsec-numbers,
