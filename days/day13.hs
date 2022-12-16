@@ -19,7 +19,7 @@ part1 file = parseFile file
   <&> traceShowId
   <&> rightOrder
   <&> traceShowId
-  & filter (== True)
+  & filter (== Smaller)
   & mapi (\i elem -> i + 1)
   & sum
 
@@ -55,17 +55,25 @@ parsePacket str = case parse packetParser "poop" str of
         Just n -> n:ns
         Nothing -> [])
 
-rightOrder :: (Packet, Packet) -> Bool
+data Comparison = Bigger | Same | Smaller deriving (Eq, Show)
 
-rightOrder (Atom a, Atom b) = a <= b
+comparison a b = if a == b
+  then Same
+  else if a < b
+    then Smaller
+    else Bigger
+
+rightOrder :: (Packet, Packet) -> Comparison
+
+rightOrder (Atom a, Atom b) = comparison a b
 rightOrder (Atom a, Seq b) = rightOrder (Seq [Atom a], Seq b)
 rightOrder (Seq b, Atom a) = rightOrder (Seq b, Seq [Atom a])
 
-rightOrder (Seq [], _) = True
-rightOrder (Seq arr1, Seq []) = False
-rightOrder (Seq arr1, Seq arr2) = if rightOrder ((head arr1), (head arr2))
-  then rightOrder (Seq $ tail arr1, Seq $ tail arr2)
-  else False
+rightOrder (Seq [], _) = Smaller
+rightOrder (Seq arr1, Seq []) = Bigger
+rightOrder (Seq arr1, Seq arr2) = case rightOrder ((head arr1), (head arr2)) of
+  Same    -> rightOrder (Seq $ tail arr1, Seq $ tail arr2)
+  other   -> other
 
 
 testFile = "[1,1,3,1,1]\n\
