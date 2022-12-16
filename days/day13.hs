@@ -24,6 +24,20 @@ part1 file = parseFile file
 
 data Packet = Seq [Packet] | Atom Int deriving (Show)
 
+instance Eq (Packet) where
+  (==) a b = case rightOrder (a,b) of
+    Same -> True
+    Smaller -> False
+    Bigger -> False
+
+instance Ord (Packet) where
+  (<) a b = case rightOrder (a, b) of
+    Same -> error ""
+    Smaller -> True
+    Bigger -> False
+
+    where
+
 parseFile :: String -> [(Packet,Packet)]
 parseFile file = splitOn "\n" file
   & filter (/= "")
