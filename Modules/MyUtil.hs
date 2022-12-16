@@ -1,5 +1,4 @@
 module Modules.MyUtil (fromRightButWorking, foldlKeepHistory, mapi, batches, joinBetween, overwrite) where
-import Data.ByteString (intersperse)
 
 fromRightButWorking e = case e of
   Left err -> error $ show err

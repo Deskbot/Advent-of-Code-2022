@@ -3,9 +3,9 @@ import Data.Functor
 import Data.List.Split
 import Debug.Trace
 import System.IO
-import Text.ParserCombinators.Parsec hiding (Line)
-import Text.ParserCombinators.Parsec.Number
+import Text.Parsec
 import Modules.MyUtil
+import Text.ParserCombinators.Parsec.Number
 
 main = do
   file <- readFile "inputs/day13.txt"
