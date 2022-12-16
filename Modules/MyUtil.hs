@@ -1,4 +1,4 @@
-module Modules.MyUtil (fromRightButWorking, foldlKeepHistory, mapi, batches, joinBetween, overwrite) where
+module Modules.MyUtil (fromRightButWorking, foldlKeepHistory, mapi, batches, joinBetween, overwrite, flat) where
 
 fromRightButWorking e = case e of
   Left err -> error $ show err
@@ -27,3 +27,6 @@ overwrite char i str = (take (i -1) str) ++ [char] ++ (drop (i) str)
 
 combinations :: [a] -> [b] -> [(a,b)]
 combinations arr1 arr2 = concatMap (\elem1 -> map (\elem2 -> (elem1, elem2)) arr2) arr1
+
+flat :: [[a]] -> [a]
+flat = foldl (++) []
