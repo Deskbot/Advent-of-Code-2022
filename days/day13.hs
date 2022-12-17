@@ -13,6 +13,7 @@ main = do
   -- () <- print (part1 testFile)
   -- () <- print (part1 file)
   () <- print (part2 file)
+  -- () <- print (part2 testFile)
   return ()
 
 
@@ -51,12 +52,15 @@ instance Eq (Packet) where
     Bigger -> False
 
 instance Ord (Packet) where
+  (<) a b = case rightOrder (a, b) of
+    Same -> False
+    Smaller -> True
+    Bigger -> False
+
   (<=) a b = case rightOrder (a, b) of
     Same -> True
     Smaller -> True
     Bigger -> False
-
-    where
 
 parseFile :: String -> [(Packet,Packet)]
 parseFile file = splitOn "\n" file
@@ -106,6 +110,7 @@ rightOrder (Atom a, Atom b) = comparison a b
 rightOrder (Atom a, Seq b) = rightOrder (Seq [Atom a], Seq b)
 rightOrder (Seq b, Atom a) = rightOrder (Seq b, Seq [Atom a])
 
+rightOrder (Seq [], Seq []) = Same
 rightOrder (Seq [], _) = Smaller
 rightOrder (Seq arr1, Seq []) = Bigger
 rightOrder (Seq arr1, Seq arr2) = case rightOrder ((head arr1), (head arr2)) of
