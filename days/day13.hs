@@ -1,5 +1,6 @@
 import Data.Function
 import Data.Functor
+import Data.List
 import Data.List.Split
 import Debug.Trace
 import System.IO
@@ -10,8 +11,8 @@ import Text.ParserCombinators.Parsec.Number
 main = do
   file <- readFile "inputs/day13.txt"
   -- () <- print (part1 testFile)
-  () <- print (part1 file)
-  -- () <- print (part2 file)
+  -- () <- print (part1 file)
+  () <- print (part2 file)
   return ()
 
 
@@ -21,8 +22,27 @@ part1 file = parseFile file
   & map fst
   & sum
 
+part2 file = parseFile2 file ++ [start, end]
+  & sort
+  <&> traceShowId
+  & findIndices (\packet -> properEqualOhDear packet start || properEqualOhDear packet end)
+  & map (+ 1)
+  & foldl1 (*)
+
+  where
+    start = Seq [Seq [Atom 2]]
+    end = Seq [Seq [Atom 6]]
+
 
 data Packet = Seq [Packet] | Atom Int deriving (Show)
+
+properEqualOhDear :: Packet -> Packet -> Bool
+properEqualOhDear (Atom a) (Atom b) = a == b
+properEqualOhDear (Seq _)  (Atom _) = False
+properEqualOhDear (Atom _) (Seq _) = False
+properEqualOhDear (Seq a)  (Seq b) = if length a /= length b
+  then False
+  else all (== True) $ zipWith properEqualOhDear a b
 
 instance Eq (Packet) where
   (==) a b = case rightOrder (a,b) of
@@ -44,6 +64,11 @@ parseFile file = splitOn "\n" file
   <&> parsePacket
   & batches 2
   <&> (\batch -> (batch !! 0, batch !! 1))
+
+parseFile2 :: String -> [Packet]
+parseFile2 file = splitOn "\n" file
+  & filter (/= "")
+  <&> parsePacket
 
 parsePacket :: String -> Packet
 parsePacket str = case parse packetParser "poop" str of
