@@ -17,7 +17,7 @@ main = do
 
 part1 file = parseFile file
   & mapi (\i pair -> (i + 1, rightOrder pair))
-  & filter (\(index, comparison) -> comparison == Smaller)
+  & filter ((== Smaller) . snd)
   & map fst
   & sum
 
@@ -31,8 +31,8 @@ instance Eq (Packet) where
     Bigger -> False
 
 instance Ord (Packet) where
-  (<) a b = case rightOrder (a, b) of
-    Same -> error ""
+  (<=) a b = case rightOrder (a, b) of
+    Same -> True
     Smaller -> True
     Bigger -> False
 
